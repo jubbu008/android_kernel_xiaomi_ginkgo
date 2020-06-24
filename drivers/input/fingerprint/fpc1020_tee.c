@@ -42,7 +42,8 @@
 #include <linux/fb.h>
 #include <drm/drm_bridge.h>
 #include <linux/msm_drm_notify.h>
-
+#include <linux/cpu_input_boost.h>
+#include <linux/devfreq_boost.h>
 
 #define FPC_TTW_HOLD_TIME 2000
 #define FP_UNLOCK_REJECTION_TIMEOUT (FPC_TTW_HOLD_TIME - 500)
@@ -525,12 +526,15 @@ static irqreturn_t fpc1020_irq_handler(int irq, void *handle)
 		__pm_wakeup_event(&fpc1020->ttw_ws, FPC_TTW_HOLD_TIME);//for kernel 4.9
 	}
 
+	cpu_input_boost_kick_max(500);
+	devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 500);
+
 	sysfs_notify(&fpc1020->dev->kobj, NULL, dev_attr_irq.attr.name);
 	if (fpc1020->wait_finger_down && fpc1020->fb_black) {
 		pr_info("fpc schedule_work enter\n");
 		fpc1020->wait_finger_down = false;
 		schedule_work(&fpc1020->work);
-	}  
+	}
 	return IRQ_HANDLED;
 }
 
