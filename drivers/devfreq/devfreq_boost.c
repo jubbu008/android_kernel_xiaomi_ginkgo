@@ -210,13 +210,13 @@ static void devfreq_boost_input_event(struct input_handle *handle,
 				      unsigned int type, unsigned int code,
 				      int value)
 {
-	return;
+	if (type == EV_KEY && code == KEY_POWER) {
+		struct df_boost_drv *d = handle->handler->private;
+		int i;
 
-	struct df_boost_drv *d = handle->handler->private;
-	int i;
-
-	for (i = 0; i < DEVFREQ_MAX; i++)
-		__devfreq_boost_kick(d->devices + i);
+		for (i = 0; i < DEVFREQ_MAX; i++)
+			__devfreq_boost_kick_max(d->devices + i, 1500);
+	}
 }
 
 static int devfreq_boost_input_connect(struct input_handler *handler,

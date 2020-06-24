@@ -240,11 +240,10 @@ static void cpu_input_boost_input_event(struct input_handle *handle,
 					unsigned int type, unsigned int code,
 					int value)
 {
-	return;
-
-	struct boost_drv *b = handle->handler->private;
-
-	__cpu_input_boost_kick(b);
+	if (type == EV_KEY && code == KEY_POWER) {
+		struct boost_drv *b = handle->handler->private;
+		__cpu_input_boost_kick_max(b, 1500);
+	}
 }
 
 static int cpu_input_boost_input_connect(struct input_handler *handler,
