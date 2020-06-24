@@ -47,6 +47,9 @@
 #include <linux/delay.h>
 #include <drm/drm_bridge.h>
 #include <linux/msm_drm_notify.h>
+#include <linux/cpu_input_boost.h>
+#include <linux/devfreq_boost.h>
+#include <linux/display_state.h>
 
 #if defined(USE_SPI_BUS)
 #include <linux/spi/spi.h>
@@ -331,6 +334,12 @@ static irqreturn_t gf_irq(int irq, void *handle)
 	struct gf_dev *gf_dev = &gf;
 	__pm_wakeup_event(&fp_ws, WAKELOCK_HOLD_TIME);
 	sendnlmsg(&msg);
+
+	if (!is_display_on()) {
+		cpu_input_boost_kick_max(500);
+		devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 500);
+	}
+
 	if (gf_dev->device_available == 1) {
 		printk("%s:shedule_work\n",__func__);
 		gf_dev->wait_finger_down = false;
