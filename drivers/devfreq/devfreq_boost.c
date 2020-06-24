@@ -211,10 +211,12 @@ static void devfreq_boost_input_event(struct input_handle *handle,
 				      int value)
 {
 	struct df_boost_drv *d = handle->handler->private;
-	int i;
+	int i, dur;
+
+	dur = (type == EV_KEY && code == KEY_POWER) ? 1500 : 100;
 
 	for (i = 0; i < DEVFREQ_MAX; i++)
-		__devfreq_boost_kick_max(d->devices + i, 100);
+		__devfreq_boost_kick_max(d->devices + i, dur);
 }
 
 static int devfreq_boost_input_connect(struct input_handler *handler,
